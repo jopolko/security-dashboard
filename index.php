@@ -982,10 +982,18 @@
                         return formatLocalTime(timestamp);
                     })();
 
+                    const serviceIcon = attack.service === 'wordpress' ? '🔐' : '🖥️';
+                    const serviceName = attack.service === 'wordpress' ? 'WordPress' : 'SSH';
+                    const statusBadge = attack.blacklisted ? '<span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 3px; font-size: 0.85em; font-weight: bold; display: inline-block; margin-top: 6px;">⛔ BLACKLISTED</span>' :
+                                       attack.locked ? '<span style="background: #f56e28; color: white; padding: 2px 8px; border-radius: 3px; font-size: 0.85em; font-weight: bold; display: inline-block; margin-top: 6px;">🔒 LOCKED</span>' : '';
+
                     marker.bindPopup(`
                         <div style="font-family: 'Inter', sans-serif; min-width: 200px;">
                             <div style="font-size: 1.1em; font-weight: 700; color: #C67B5C; margin-bottom: 8px; font-family: 'Courier New', monospace;">
                                 ${attack.ip}
+                            </div>
+                            <div style="color: #2C2416; margin-bottom: 4px;">
+                                <strong>Target:</strong> ${serviceIcon} ${serviceName}
                             </div>
                             <div style="color: #2C2416; margin-bottom: 4px;">
                                 <strong>Location:</strong> ${attack.city || 'Unknown'}, ${attack.country || 'Unknown'}
@@ -996,6 +1004,7 @@
                             <div style="color: #5C5040; font-size: 0.9em;">
                                 <strong>Last Seen:</strong> ${lastSeenLocal}
                             </div>
+                            ${statusBadge}
                         </div>
                     `);
 
@@ -1070,12 +1079,16 @@
 
             container.innerHTML = recentAttacks.slice(0, 4).map(attack => {
                 const localTime = attack.timestamp ? formatLocalTime(attack.timestamp) : attack.time;
+                const serviceIcon = attack.service === 'wordpress' ? '🔐' : '🖥️';
+                const serviceName = attack.service === 'wordpress' ? 'WordPress' : 'SSH';
+                const statusBadge = attack.blacklisted ? ' <span style="background: #dc3545; color: white; padding: 1px 6px; border-radius: 2px; font-size: 0.75em; font-weight: bold;">⛔ BANNED</span>' :
+                                   attack.locked ? ' <span style="background: #f56e28; color: white; padding: 1px 6px; border-radius: 2px; font-size: 0.75em; font-weight: bold;">🔒 LOCKED</span>' : '';
                 return `
                     <div class="log-entry">
-                        <div class="log-time">⏱ ${localTime}</div>
+                        <div class="log-time">⏱ ${localTime} ${serviceIcon} ${serviceName}</div>
                         <div>
                             IP: <span class="log-ip">${attack.ip}</span>
-                            <span class="log-count">${attack.count}</span>
+                            <span class="log-count">${attack.count}</span>${statusBadge}
                         </div>
                         <div class="log-location">📍 ${attack.location}</div>
                     </div>

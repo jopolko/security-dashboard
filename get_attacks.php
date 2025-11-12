@@ -106,6 +106,150 @@ function parseAuthLog($logFile, $daysBack = 7) {
     return ['attacks' => $attacks, 'portStats' => $portStats];
 }
 
+// Parse Apache access.log for WordPress login attempts
+function parseWordPressLog($logFile, $daysBack = 7) {
+    $attacks = [];
+    $portStats = [];
+
+    if (!file_exists($logFile)) {
+        return ['attacks' => $attacks, 'portStats' => $portStats];
+    }
+
+    $cutoffTime = time() - ($daysBack * 86400);
+
+    $lines = file($logFile);
+    if ($lines === false) {
+        return ['attacks' => $attacks, 'portStats' => $portStats];
+    }
+
+    foreach ($lines as $line) {
+        // Match POST requests to wp-login.php with failed attempts (200 status with large body = form returned)
+        if (preg_match('/^(\S+) .* \[([^\]]+)\] "POST \/wp-login\.php HTTP\/\d\.\d" 200 [4-9]\d{3}/', $line, $matches)) {
+            $ip = $matches[1];
+            $timestamp = $matches[2];
+
+            // Skip local/private IPs
+            if (preg_match('/^(10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|192\.168\.|127\.)/', $ip)) {
+                continue;
+            }
+
+            // Convert Apache timestamp to Unix time
+            // Format: 12/Nov/2025:00:17:38 +0000
+            // Convert to: 12-Nov-2025 00:17:38 +0000
+            $timestampFormatted = preg_replace('/:/', ' ', $timestamp, 1); // Replace first : with space
+            $timestampFormatted = str_replace('/', '-', $timestampFormatted); // Replace / with -
+            $unixTime = strtotime($timestampFormatted);
+
+            // Skip old attacks
+            if ($unixTime < $cutoffTime) {
+                continue;
+            }
+
+            // Convert to readable format
+            $readableTime = date('M d H:i:s', $unixTime);
+
+            if (!isset($attacks[$ip])) {
+                $attacks[$ip] = [
+                    'ip' => $ip,
+                    'count' => 0,
+                    'firstSeen' => $readableTime,
+                    'lastSeen' => $readableTime,
+                    'attempts' => [],
+                    'service' => 'wordpress'  // Mark as WordPress attack
+                ];
+            }
+
+            $attacks[$ip]['count']++;
+            $attacks[$ip]['lastSeen'] = $readableTime;
+            $attacks[$ip]['attempts'][] = $readableTime;
+
+            // Track HTTP/HTTPS (port 80/443)
+            if (!isset($portStats[80])) {
+                $portStats[80] = 0;
+            }
+            $portStats[80]++;
+        }
+    }
+
+    return ['attacks' => $attacks, 'portStats' => $portStats];
+}
+
+// Parse WordPress "Limit Login Attempts Reloaded" plugin data
+function parseWordPressPluginData($daysBack = 7) {
+    $attacks = [];
+    $portStats = [];
+
+    // Load WordPress to access options
+    $wpLoad = dirname(__DIR__) . '/wp-load.php';
+    if (!file_exists($wpLoad)) {
+        return ['attacks' => $attacks, 'portStats' => $portStats];
+    }
+
+    // Load WordPress
+    define('WP_USE_THEMES', false);
+    require_once($wpLoad);
+
+    // Get data from Limit Login Attempts Reloaded
+    $logged = get_option('limit_login_logged', array());
+    $lockouts = get_option('limit_login_lockouts', array());
+    $blacklist = get_option('limit_login_blacklist', array());
+
+    $cutoffTime = time() - ($daysBack * 86400);
+
+    if (is_array($logged)) {
+        foreach ($logged as $timestamp => $event) {
+            // Skip old entries
+            if ($timestamp < $cutoffTime) {
+                continue;
+            }
+
+            $ip = $event['ip'];
+
+            // Skip local/private IPs
+            if (preg_match('/^(10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|192\.168\.|127\.)/', $ip)) {
+                continue;
+            }
+
+            $readableTime = date('M d H:i:s', $timestamp);
+
+            if (!isset($attacks[$ip])) {
+                $attacks[$ip] = [
+                    'ip' => $ip,
+                    'count' => 0,
+                    'firstSeen' => $readableTime,
+                    'lastSeen' => $readableTime,
+                    'attempts' => [],
+                    'service' => 'wordpress',
+                    'locked' => false,
+                    'blacklisted' => false
+                ];
+            }
+
+            $attacks[$ip]['count'] += $event['counter'];
+            $attacks[$ip]['lastSeen'] = $readableTime;
+            $attacks[$ip]['attempts'][] = $readableTime;
+
+            // Check if currently locked
+            if (isset($lockouts[$ip]) && $lockouts[$ip] > time()) {
+                $attacks[$ip]['locked'] = true;
+            }
+
+            // Check if blacklisted
+            if (is_array($blacklist) && in_array($ip, $blacklist)) {
+                $attacks[$ip]['blacklisted'] = true;
+            }
+
+            // Track HTTP/HTTPS
+            if (!isset($portStats[80])) {
+                $portStats[80] = 0;
+            }
+            $portStats[80] += $event['counter'];
+        }
+    }
+
+    return ['attacks' => $attacks, 'portStats' => $portStats];
+}
+
 // Get fail2ban banned IPs count
 function getFail2banBannedCount() {
     $bannedCount = 0;
@@ -197,7 +341,7 @@ function getGeoLocation($ip) {
 // Main execution
 try {
     // Read current and rotated logs, filter to last 7 days
-    $logFiles = [
+    $sshLogFiles = [
         '/var/log/auth.log',
         '/var/log/auth.log.1',
         '/var/log/auth.log.2.gz',
@@ -206,12 +350,53 @@ try {
         // Include up to 4 rotated logs to cover 7 days (assuming weekly rotation)
     ];
 
+    $wordpressLogFiles = [
+        '/var/log/apache2/access.log',
+        '/var/log/apache2/access.log.1'
+    ];
+
     $attacks = [];
     $portStats = [];
 
-    foreach ($logFiles as $logFile) {
+    // Parse SSH logs
+    foreach ($sshLogFiles as $logFile) {
         if (file_exists($logFile)) {
             $logData = parseAuthLog($logFile, 7); // Last 7 days
+
+            // Merge attacks (combine counts for same IP)
+            foreach ($logData['attacks'] as $ip => $data) {
+                if (!isset($attacks[$ip])) {
+                    $attacks[$ip] = $data;
+                    $attacks[$ip]['service'] = 'ssh';  // Mark as SSH
+                } else {
+                    // Merge attack data for same IP
+                    $attacks[$ip]['count'] += $data['count'];
+                    $attacks[$ip]['attempts'] = array_merge($attacks[$ip]['attempts'], $data['attempts']);
+                    // Keep the most recent lastSeen
+                    if (strtotime($data['lastSeen']) > strtotime($attacks[$ip]['lastSeen'])) {
+                        $attacks[$ip]['lastSeen'] = $data['lastSeen'];
+                    }
+                    // Keep the earliest firstSeen
+                    if (strtotime($data['firstSeen']) < strtotime($attacks[$ip]['firstSeen'])) {
+                        $attacks[$ip]['firstSeen'] = $data['firstSeen'];
+                    }
+                }
+            }
+
+            // Merge port stats
+            foreach ($logData['portStats'] as $port => $count) {
+                if (!isset($portStats[$port])) {
+                    $portStats[$port] = 0;
+                }
+                $portStats[$port] += $count;
+            }
+        }
+    }
+
+    // Parse WordPress logs
+    foreach ($wordpressLogFiles as $logFile) {
+        if (file_exists($logFile)) {
+            $logData = parseWordPressLog($logFile, 7); // Last 7 days
 
             // Merge attacks (combine counts for same IP)
             foreach ($logData['attacks'] as $ip => $data) {
@@ -242,6 +427,41 @@ try {
         }
     }
 
+    // Parse WordPress plugin data (Limit Login Attempts Reloaded)
+    $pluginData = parseWordPressPluginData(7);
+    foreach ($pluginData['attacks'] as $ip => $data) {
+        if (!isset($attacks[$ip])) {
+            $attacks[$ip] = $data;
+        } else {
+            // Merge attack data for same IP
+            $attacks[$ip]['count'] += $data['count'];
+            $attacks[$ip]['attempts'] = array_merge($attacks[$ip]['attempts'], $data['attempts']);
+            // Preserve locked/blacklisted status
+            if (isset($data['locked']) && $data['locked']) {
+                $attacks[$ip]['locked'] = true;
+            }
+            if (isset($data['blacklisted']) && $data['blacklisted']) {
+                $attacks[$ip]['blacklisted'] = true;
+            }
+            // Keep the most recent lastSeen
+            if (strtotime($data['lastSeen']) > strtotime($attacks[$ip]['lastSeen'])) {
+                $attacks[$ip]['lastSeen'] = $data['lastSeen'];
+            }
+            // Keep the earliest firstSeen
+            if (strtotime($data['firstSeen']) < strtotime($attacks[$ip]['firstSeen'])) {
+                $attacks[$ip]['firstSeen'] = $data['firstSeen'];
+            }
+        }
+    }
+
+    // Merge port stats from plugin
+    foreach ($pluginData['portStats'] as $port => $count) {
+        if (!isset($portStats[$port])) {
+            $portStats[$port] = 0;
+        }
+        $portStats[$port] += $count;
+    }
+
     // Geolocate IPs (limit to top 100 by attempt count for 7-day view)
     $sortedAttacks = $attacks;
     uasort($sortedAttacks, function($a, $b) {
@@ -266,7 +486,10 @@ try {
                 'countryCode' => $geo['countryCode'] ?? 'XX',
                 'city' => $geo['city'] ?? 'Unknown',
                 'lastSeen' => $data['lastSeen'],
-                'firstSeen' => $data['firstSeen']
+                'firstSeen' => $data['firstSeen'],
+                'service' => $data['service'] ?? 'ssh',  // Include service type
+                'locked' => $data['locked'] ?? false,
+                'blacklisted' => $data['blacklisted'] ?? false
             ];
         } else {
             // Add without geo data
@@ -279,7 +502,10 @@ try {
                 'countryCode' => 'XX',
                 'city' => 'Unknown',
                 'lastSeen' => $data['lastSeen'],
-                'firstSeen' => $data['firstSeen']
+                'firstSeen' => $data['firstSeen'],
+                'service' => $data['service'] ?? 'ssh',  // Include service type
+                'locked' => $data['locked'] ?? false,
+                'blacklisted' => $data['blacklisted'] ?? false
             ];
         }
 
@@ -315,7 +541,10 @@ try {
             'time' => $attack['lastSeen'],
             'timestamp' => $timestamp, // Unix timestamp for sorting and client conversion
             'location' => $attack['city'] . ', ' . $attack['country'],
-            'count' => $attack['count']
+            'count' => $attack['count'],
+            'service' => $attack['service'] ?? 'ssh',  // Include service type
+            'locked' => $attack['locked'] ?? false,
+            'blacklisted' => $attack['blacklisted'] ?? false
         ];
     }
 
@@ -329,6 +558,11 @@ try {
 
     // Get fail2ban banned count
     $bannedIpCount = getFail2banBannedCount();
+
+    // Add WordPress blacklist count
+    $wpBlacklist = get_option('limit_login_blacklist', array());
+    $wordpressBannedCount = is_array($wpBlacklist) ? count($wpBlacklist) : 0;
+    $totalBannedIps = $bannedIpCount + $wordpressBannedCount;
 
     // Sort port statistics
     arsort($portStats);
@@ -367,7 +601,7 @@ try {
         'totalAttempts' => array_sum(array_column($attacks, 'count')),
         'uniqueIps' => count($attacks),
         'countryCount' => count($countryCounts),
-        'bannedIps' => $bannedIpCount,
+        'bannedIps' => $totalBannedIps,
         'countryCounts' => $countryCounts,
         'portStats' => $portData,
         'recentAttacks' => $recentAttacks,

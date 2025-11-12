@@ -762,7 +762,12 @@
             }
 
             .map-container {
-                height: 50vh; /* Reduced from 70vh to ensure content fits better */
+                height: 80vh; /* Increased height for better visibility */
+                grid-column: 1 / -1; /* Make map span full width */
+            }
+
+            .map-legend {
+                display: none; /* Hide legend on mobile landscape to save space */
             }
 
             .sidebar {

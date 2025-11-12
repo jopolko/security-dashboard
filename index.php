@@ -746,6 +746,10 @@
 
         /* Landscape mode on mobile */
         @media (max-width: 896px) and (orientation: landscape) {
+            body {
+                overflow-y: auto !important;
+            }
+
             .container {
                 height: auto;
                 min-height: 100vh;
@@ -754,15 +758,16 @@
             .main-content {
                 grid-template-columns: 1fr 1fr;
                 grid-template-rows: auto;
+                overflow: visible; /* Allow content to flow naturally for page scrolling */
             }
 
             .map-container {
-                height: 70vh;
+                height: 50vh; /* Reduced from 70vh to ensure content fits better */
             }
 
             .sidebar {
-                max-height: 70vh;
-                overflow-y: auto;
+                max-height: none; /* Remove max-height to allow natural flow */
+                overflow-y: visible; /* Let the body handle scrolling */
             }
         }
 

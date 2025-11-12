@@ -874,6 +874,7 @@
         function initMap() {
             // Detect mobile device and orientation
             const isMobile = window.innerWidth <= 768;
+            const isLandscape = window.innerWidth > window.innerHeight;
             const isPortrait = window.innerHeight > window.innerWidth;
 
             // Use lower zoom for portrait mode to fit all content
@@ -887,9 +888,10 @@
                 maxZoom: 10,
                 tap: true, // Enable tap for mobile
                 tapTolerance: 15, // Larger tap tolerance for mobile
-                touchZoom: true,
+                touchZoom: !isMobile, // Disable touch zoom on mobile to prevent map interaction
                 dragging: !isMobile, // Disable dragging on mobile to allow page scrolling
-                scrollWheelZoom: false // Disable scroll zoom to prevent conflicts with page scrolling
+                scrollWheelZoom: !isMobile, // Disable scroll zoom on mobile
+                doubleClickZoom: !isMobile // Disable double-click zoom on mobile
             });
 
             // Light themed tile layer

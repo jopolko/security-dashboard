@@ -612,10 +612,18 @@
             .map-container {
                 height: 350px;
                 touch-action: pan-y; /* Allow vertical scrolling through the map */
+                pointer-events: none; /* Completely disable touch interactions on mobile */
             }
 
             #map {
                 touch-action: pan-y; /* Allow vertical scrolling through the map */
+                pointer-events: none; /* Disable all map interactions on mobile */
+            }
+
+            /* Re-enable pointer events on markers so they can still be tapped */
+            .leaflet-marker-icon,
+            .leaflet-popup {
+                pointer-events: auto !important;
             }
 
             .map-legend {
@@ -764,10 +772,21 @@
             .map-container {
                 height: 80vh; /* Increased height for better visibility */
                 grid-column: 1 / -1; /* Make map span full width */
+                pointer-events: none; /* Completely disable touch interactions */
             }
 
             .map-legend {
                 display: none; /* Hide legend on mobile landscape to save space */
+            }
+
+            #map {
+                pointer-events: none; /* Disable all map interactions */
+            }
+
+            /* Re-enable pointer events on markers so they can still be tapped */
+            .leaflet-marker-icon,
+            .leaflet-popup {
+                pointer-events: auto !important;
             }
 
             .sidebar {

@@ -1,16 +1,17 @@
-# Intrusion Detection Matrix Dashboard
+# Security Threat Intelligence Dashboard
 
-A modern, cyberpunk-styled dashboard for visualizing SSH login attempts and security threats in real-time.
+A modern, professional dashboard for visualizing SSH login attempts and security threats in real-time.
 
 ## Features
 
 - 🗺️ **Global Attack Map** - Visualize attack origins on an interactive world map with variable-sized nodes
-- 📊 **Real-time Statistics** - Track total attempts, unique IPs, and country distribution
-- 🎯 **Top Attackers** - See which countries are launching the most attacks
-- 📝 **Attack Log** - Monitor recent login attempts with timestamps and locations
-- 🎨 **Professional Design** - Clean cream palette with modern UI elements
-- ⚡ **Auto-refresh** - Updates every 30 seconds automatically
-- 📱 **Mobile Responsive** - Optimized for all screen sizes
+- 📊 **Real-time Statistics** - Track total attempts, unique IPs, banned IPs, and country distribution
+- 🎯 **Top Countries** - See which countries are launching the most attacks with animated bar charts
+- 📝 **Recent Attacks** - Monitor recent login attempts with timestamps and locations
+- 🎨 **Professional Design** - Clean cream/beige palette with elegant UI elements
+- 🛡️ **Fail2ban Integration** - Real-time banned IP tracking with permanent ban support
+- 📅 **Rolling 7-Day Window** - Dynamic data filtering for recent threats
+- 📱 **Mobile Responsive** - Fully optimized for all screen sizes and devices
 
 ## Setup
 
@@ -57,11 +58,11 @@ http://your-server-ip/security/
 
 ### Frontend (`index.php`)
 
-- Interactive Leaflet.js map with dark theme
-- Real-time statistics display
-- Animated UI elements with cyberpunk aesthetic
-- Auto-refresh every 30 seconds
-- Responsive design
+- Interactive Leaflet.js map with light professional theme
+- Real-time statistics display with live updates
+- Animated UI elements with smooth transitions
+- Data loads dynamically on page load
+- Fully responsive design for mobile and desktop
 
 ## Attack Patterns Detected
 
@@ -75,10 +76,12 @@ The dashboard detects the following authentication failure patterns:
 
 ## Performance
 
-- **Caching**: Geolocation data cached for 24 hours
-- **Attack data**: Cached for 5 minutes
-- **Rate limiting**: Built-in delays to respect free API limits
+- **Geolocation Caching**: IP location data cached for 24 hours per IP
+- **Real-time Data**: Attack data parsed fresh on every request (no main cache)
+- **Rate Limiting**: Built-in 1.5s delays between API calls to respect limits (45 req/min)
 - **Optimization**: Processes top 100 attacking IPs by frequency
+- **7-Day Rolling Window**: Only analyzes attacks from the past 7 days
+- **Gzip Compression**: Response data compressed for faster transfer
 
 ## Privacy & Security
 
@@ -93,22 +96,23 @@ The dashboard detects the following authentication failure patterns:
 ### Update Colors
 
 Edit the CSS variables in `index.php`:
-- Primary: `#00ff41` (Matrix green)
-- Secondary: `#00d4ff` (Cyan)
-- Accent: `#ff00ff` (Magenta)
+- Background: `--cream-bg: #FAF7F0` (cream)
+- Accent Primary: `--accent-primary: #B8956A` (warm brown)
+- Accent Danger: `--accent-danger: #C67B5C` (rust red)
+- Text Primary: `--text-primary: #2C2416` (dark brown)
 
-### Change Refresh Rate
+### Change Time Window
 
-Modify the interval in JavaScript (default: 30 seconds):
-```javascript
-setInterval(loadData, 30000); // Change 30000 to desired milliseconds
+Edit `get_attacks.php` to adjust the rolling window (default: 7 days):
+```php
+function parseAuthLog($logFile, $daysBack = 7) { // Change 7 to desired days
 ```
 
-### Adjust Cache Duration
+### Adjust Geolocation Cache
 
-Edit `get_attacks.php`:
+Edit `get_attacks.php` (default: 24 hours):
 ```php
-$cacheTime = 300; // Change from 5 minutes to desired seconds
+if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < 86400) { // Change 86400 to desired seconds
 ```
 
 ## Troubleshooting
@@ -209,6 +213,7 @@ Free to use for security monitoring and educational purposes.
 
 ## Credits
 
-- Map: Leaflet.js with CARTO Dark Matter tiles
-- Geolocation: ip-api.com (free tier)
-- Design: Cyberpunk/Matrix inspired aesthetic
+- Map: Leaflet.js with CARTO Light tiles
+- Geolocation: ip-api.com (free tier, 45 req/min)
+- Design: Professional cream palette with modern UI
+- Fail2ban: Integration for permanent IP banning

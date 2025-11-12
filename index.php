@@ -792,6 +792,10 @@
             .sidebar {
                 max-height: none; /* Remove max-height to allow natural flow */
                 overflow-y: visible; /* Let the body handle scrolling */
+                display: grid;
+                grid-template-columns: 1fr 1fr; /* Two columns: Countries left, Recent right */
+                gap: 20px;
+                grid-column: 1 / -1; /* Span full width below map */
             }
         }
 

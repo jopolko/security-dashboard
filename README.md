@@ -23,11 +23,11 @@ The web server needs permission to read the auth.log file:
 sudo usermod -a -G adm www-data
 
 # Option 2: Create a readable copy with a cron job
-sudo cp /var/log/auth.log /var/www/html/sec/auth.log
-sudo chmod 644 /var/www/html/sec/auth.log
+sudo cp /var/log/auth.log /var/www/html/security/auth.log
+sudo chmod 644 /var/www/html/security/auth.log
 
 # Add to crontab for automatic updates:
-*/5 * * * * cp /var/log/auth.log /var/www/html/sec/auth.log && chmod 644 /var/www/html/sec/auth.log
+*/5 * * * * cp /var/log/auth.log /var/www/html/security/auth.log && chmod 644 /var/www/html/security/auth.log
 ```
 
 ### 2. Create Cache Directory
@@ -42,7 +42,7 @@ sudo chmod 777 /tmp
 
 Open your browser and navigate to:
 ```
-http://your-server-ip/sec/
+http://your-server-ip/security/
 ```
 
 ## How It Works
@@ -184,7 +184,7 @@ The dashboard is fully responsive and optimized for mobile devices:
 
 ### Testing on Mobile
 
-1. **Open on mobile browser**: http://your-server-ip/sec/
+1. **Open on mobile browser**: http://your-server-ip/security/
 2. **Portrait mode**: Vertical scrolling layout
 3. **Landscape mode**: Side-by-side view
 4. **Pinch to zoom**: Works on map

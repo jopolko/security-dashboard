@@ -857,12 +857,16 @@
 
         // Initialize map
         function initMap() {
-            // Detect mobile device
+            // Detect mobile device and orientation
             const isMobile = window.innerWidth <= 768;
+            const isPortrait = window.innerHeight > window.innerWidth;
+
+            // Use lower zoom for portrait mode to fit all content
+            const mobileZoom = (isMobile && isPortrait) ? 0.6 : (isMobile ? 0.8 : 2);
 
             map = L.map('map', {
-                center: [30, 20],  // Shifted center slightly east to better frame global attacks
-                zoom: isMobile ? 0.8 : 2,  // Reduced mobile zoom to show more area (including Japan)
+                center: [25, 15],  // Adjusted center for better global coverage
+                zoom: mobileZoom,
                 zoomControl: true,
                 minZoom: 0.5,  // Allow zooming out further
                 maxZoom: 10,
@@ -870,7 +874,7 @@
                 tapTolerance: 15, // Larger tap tolerance for mobile
                 touchZoom: true,
                 dragging: true,
-                scrollWheelZoom: !isMobile // Disable scroll zoom on mobile to prevent accidental zooming
+                scrollWheelZoom: false // Disable scroll zoom to prevent conflicts with page scrolling
             });
 
             // Light themed tile layer
@@ -880,12 +884,17 @@
                 maxZoom: 19
             }).addTo(map);
 
-            // Re-center map when window is resized
+            // Re-center and adjust zoom when window is resized (orientation changes)
             let resizeTimer;
             window.addEventListener('resize', () => {
                 clearTimeout(resizeTimer);
                 resizeTimer = setTimeout(() => {
+                    const isMobile = window.innerWidth <= 768;
+                    const isPortrait = window.innerHeight > window.innerWidth;
+                    const mobileZoom = (isMobile && isPortrait) ? 0.6 : (isMobile ? 0.8 : 2);
+
                     map.invalidateSize();
+                    map.setZoom(mobileZoom);
                 }, 250);
             });
         }

@@ -861,10 +861,10 @@
             const isMobile = window.innerWidth <= 768;
 
             map = L.map('map', {
-                center: [30, 0],
-                zoom: isMobile ? 1 : 2,
+                center: [30, 20],  // Shifted center slightly east to better frame global attacks
+                zoom: isMobile ? 0.8 : 2,  // Reduced mobile zoom to show more area (including Japan)
                 zoomControl: true,
-                minZoom: 1,
+                minZoom: 0.5,  // Allow zooming out further
                 maxZoom: 10,
                 tap: true, // Enable tap for mobile
                 tapTolerance: 15, // Larger tap tolerance for mobile

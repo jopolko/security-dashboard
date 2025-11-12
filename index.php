@@ -611,6 +611,11 @@
 
             .map-container {
                 height: 350px;
+                touch-action: pan-y; /* Allow vertical scrolling through the map */
+            }
+
+            #map {
+                touch-action: pan-y; /* Allow vertical scrolling through the map */
             }
 
             .map-legend {
@@ -873,7 +878,7 @@
                 tap: true, // Enable tap for mobile
                 tapTolerance: 15, // Larger tap tolerance for mobile
                 touchZoom: true,
-                dragging: true,
+                dragging: !isMobile, // Disable dragging on mobile to allow page scrolling
                 scrollWheelZoom: false // Disable scroll zoom to prevent conflicts with page scrolling
             });
 

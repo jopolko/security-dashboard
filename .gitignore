@@ -1,0 +1,31 @@
+# Temporary files
+*.tmp
+*.log
+
+# Cache directories
+/tmp/
+cache/
+*.cache
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Environment files (if any added in future)
+.env
+.env.local
+
+# System files
+*.pid

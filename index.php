@@ -1333,7 +1333,7 @@
                 </div>
 
                 <div class="panel">
-                    <div class="panel-title">Attack Heatmap</div>
+                    <div class="panel-title">Attack Timeline</div>
                     <div id="hourlyHeatmap" class="hourly-heatmap"></div>
                 </div>
 

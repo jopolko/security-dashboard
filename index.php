@@ -52,6 +52,10 @@
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         :root {
             --cream-bg: #FAF7F0;
             --cream-dark: #E8DCC4;
@@ -69,7 +73,7 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: linear-gradient(135deg, var(--cream-bg) 0%, var(--cream-dark) 100%);
             color: var(--text-primary);
-            overflow: hidden;
+            overflow-y: auto;
             position: relative;
         }
 
@@ -92,11 +96,11 @@
         .container {
             position: relative;
             z-index: 1;
-            height: 100vh;
+            min-height: 100vh;
             display: grid;
-            grid-template-rows: auto 1fr;
-            padding: 20px;
-            gap: 20px;
+            grid-template-rows: auto auto;
+            padding: 12px;
+            gap: 12px;
             max-width: 1920px;
             margin: 0 auto;
         }
@@ -106,17 +110,30 @@
             display: grid;
             grid-template-columns: 1fr auto 1fr;
             align-items: center;
-            padding: 22px 36px;
-            background: rgba(255, 255, 255, 0.95);
+            padding: 14px 24px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(250, 247, 240, 0.95) 100%);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
-            box-shadow: 0 8px 32px var(--shadow);
+            border-radius: 12px;
+            box-shadow: 0 2px 12px var(--shadow), 0 1px 3px rgba(44, 36, 22, 0.06);
             backdrop-filter: blur(10px);
-            gap: 24px;
+            gap: 20px;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+            border-radius: 12px 12px 0 0;
+            opacity: 0.4;
         }
 
         .title {
-            font-size: 1.75em;
+            font-size: 1.5em;
             font-weight: 600;
             color: var(--text-primary);
             letter-spacing: -0.5px;
@@ -142,8 +159,8 @@
 
         .status {
             display: flex;
-            gap: 24px;
-            font-size: 0.9em;
+            gap: 12px;
+            font-size: 0.85em;
             grid-column: 2;
             justify-self: center;
         }
@@ -152,11 +169,11 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 12px 24px;
+            padding: 8px 16px;
             background: linear-gradient(135deg, rgba(184, 149, 106, 0.1), rgba(139, 115, 85, 0.05));
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            min-width: 120px;
+            border-radius: 10px;
+            min-width: 100px;
             transition: all 0.3s ease;
         }
 
@@ -167,15 +184,15 @@
 
         .status-label {
             color: var(--text-secondary);
-            font-size: 0.75em;
+            font-size: 0.7em;
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .status-value {
-            font-size: 2em;
+            font-size: 1.8em;
             font-weight: 700;
             color: var(--accent-primary);
             line-height: 1;
@@ -184,18 +201,37 @@
         /* Main content */
         .main-content {
             display: grid;
-            grid-template-columns: 1fr 360px;
-            gap: 20px;
-            overflow: hidden;
+            gap: 12px;
+        }
+
+        .top-row {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 12px;
+            align-items: start;
+        }
+
+        .bottom-panels {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 12px;
+        }
+
+        /* For wider screens, limit to 3 columns max */
+        @media (min-width: 1400px) {
+            .bottom-panels {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
 
         /* Map container */
         .map-container {
             position: relative;
+            height: 480px;
             border: 1px solid var(--border-color);
-            border-radius: 16px;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 8px 32px var(--shadow);
+            box-shadow: 0 4px 20px var(--shadow);
             background: white;
         }
 
@@ -206,21 +242,21 @@
 
         .map-legend {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
+            bottom: 12px;
+            right: 12px;
             background: rgba(255, 255, 255, 0.98);
-            padding: 16px 20px;
-            border-radius: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
             border: 1px solid var(--border-color);
             box-shadow: 0 4px 16px var(--shadow);
             z-index: 1000;
         }
 
         .legend-title {
-            font-size: 0.85em;
+            font-size: 0.75em;
             font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -228,9 +264,9 @@
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 8px;
-            font-size: 0.8em;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 0.75em;
         }
 
         .legend-circle {
@@ -244,51 +280,41 @@
         .sidebar {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            overflow-y: auto;
-            padding-right: 8px;
-            max-height: 100%;
-        }
-
-        .sidebar::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .sidebar::-webkit-scrollbar-track {
-            background: var(--cream-dark);
-            border-radius: 3px;
-        }
-
-        .sidebar::-webkit-scrollbar-thumb {
-            background: var(--accent-primary);
-            border-radius: 3px;
+            gap: 12px;
         }
 
         /* Panel */
         .panel {
             background: rgba(255, 255, 255, 0.95);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 8px 32px var(--shadow);
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 2px 12px var(--shadow), 0 1px 3px rgba(44, 36, 22, 0.06);
             backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .panel:hover {
+            box-shadow: 0 4px 20px var(--shadow), 0 2px 8px rgba(44, 36, 22, 0.1);
+            transform: translateY(-2px);
         }
 
         .panel-title {
-            font-size: 1.1em;
+            font-size: 1em;
             font-weight: 600;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             color: var(--text-primary);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             letter-spacing: -0.3px;
         }
 
         .panel-title::before {
             content: '';
-            width: 4px;
-            height: 20px;
+            width: 3px;
+            height: 16px;
             background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
             border-radius: 2px;
         }
@@ -296,7 +322,7 @@
         .stat-item {
             display: flex;
             justify-content: space-between;
-            padding: 12px 0;
+            padding: 8px 0;
             border-bottom: 1px solid var(--cream-darker);
             animation: fadeIn 0.5s ease-in;
         }
@@ -312,14 +338,14 @@
 
         .stat-label {
             color: var(--text-secondary);
-            font-size: 0.9em;
+            font-size: 0.85em;
             font-weight: 500;
         }
 
         .stat-value {
             color: var(--accent-danger);
             font-weight: 700;
-            font-size: 0.95em;
+            font-size: 0.9em;
         }
 
         /* Attack log */
@@ -328,12 +354,12 @@
         }
 
         .log-entry {
-            padding: 14px;
-            margin-bottom: 12px;
+            padding: 10px;
+            margin-bottom: 8px;
             background: linear-gradient(135deg, rgba(198, 123, 92, 0.08), rgba(184, 149, 106, 0.08));
             border-left: 3px solid var(--accent-danger);
             border-radius: 8px;
-            font-size: 0.85em;
+            font-size: 0.8em;
             animation: slideIn 0.4s ease-out;
             transition: all 0.2s ease;
         }
@@ -350,9 +376,9 @@
 
         .log-time {
             color: var(--accent-secondary);
-            font-size: 0.9em;
+            font-size: 0.85em;
             font-weight: 500;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
 
         .log-ip {
@@ -363,24 +389,24 @@
 
         .log-location {
             color: var(--text-secondary);
-            font-size: 0.9em;
-            margin-top: 4px;
+            font-size: 0.85em;
+            margin-top: 3px;
         }
 
         .log-count {
             display: inline-block;
             background: var(--accent-danger);
             color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.8em;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.75em;
             font-weight: 600;
-            margin-left: 8px;
+            margin-left: 6px;
         }
 
         /* Top countries */
         #topCountries {
-            max-height: 340px;
+            max-height: 280px;
             overflow-y: auto;
         }
 
@@ -402,7 +428,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
+            padding: 7px 0;
             border-bottom: 1px solid var(--cream-darker);
         }
 
@@ -411,18 +437,18 @@
         }
 
         .country-name {
-            min-width: 100px;
+            min-width: 85px;
             color: var(--text-primary);
             font-weight: 500;
-            font-size: 0.9em;
+            font-size: 0.85em;
         }
 
         .country-bar {
             flex: 1;
-            height: 28px;
+            height: 22px;
             background: var(--cream-dark);
-            margin: 0 16px;
-            border-radius: 14px;
+            margin: 0 12px;
+            border-radius: 11px;
             position: relative;
             overflow: hidden;
         }
@@ -454,17 +480,17 @@
         }
 
         .country-count {
-            min-width: 60px;
+            min-width: 55px;
             text-align: right;
             color: var(--accent-danger);
             font-weight: 700;
-            font-size: 0.95em;
+            font-size: 0.85em;
         }
 
         .loading {
             text-align: center;
-            padding: 40px;
-            font-size: 1em;
+            padding: 30px;
+            font-size: 0.9em;
             color: var(--text-secondary);
             animation: pulse 2s infinite;
         }
@@ -472,6 +498,348 @@
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.4; }
+        }
+
+        /* New Visualizations */
+
+        /* Service Breakdown */
+        .service-breakdown {
+            display: grid;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .service-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 7px 0;
+            border-bottom: 1px solid var(--cream-darker);
+        }
+
+        .service-item:last-child {
+            border-bottom: none;
+        }
+
+        .service-name {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 0.85em;
+        }
+
+        .service-icon {
+            font-size: 1.1em;
+        }
+
+        .service-count {
+            color: var(--accent-danger);
+            font-weight: 700;
+            font-size: 0.85em;
+        }
+
+        /* Hourly Timeline Bar Chart */
+        .hourly-heatmap {
+            padding: 16px;
+            position: relative;
+            min-height: 200px;
+        }
+
+        .timeline-container {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(250, 247, 240, 0.9) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow:
+                0 4px 20px rgba(184, 149, 106, 0.15),
+                inset 0 1px 3px rgba(255, 255, 255, 0.8);
+        }
+
+        .timeline-title {
+            font-size: 0.75em;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .timeline-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 120px;
+            margin-bottom: 8px;
+            padding: 0 2px;
+            background: linear-gradient(
+                to right,
+                rgba(139, 115, 85, 0.05) 0%,
+                rgba(184, 149, 106, 0.05) 25%,
+                rgba(198, 123, 92, 0.1) 50%,
+                rgba(184, 149, 106, 0.05) 75%,
+                rgba(139, 115, 85, 0.05) 100%
+            );
+            border-radius: 6px;
+            position: relative;
+        }
+
+        .timeline-bar {
+            flex: 1;
+            max-width: 12px;
+            margin: 0 1px;
+            border-radius: 3px 3px 0 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            background: linear-gradient(
+                180deg,
+                var(--bar-color-top) 0%,
+                var(--bar-color-bottom) 100%
+            );
+            box-shadow:
+                0 1px 3px rgba(184, 149, 106, 0.2),
+                inset 0 1px 1px rgba(255, 255, 255, 0.3);
+        }
+
+        .timeline-bar:hover {
+            transform: translateY(-2px) scale(1.1);
+            box-shadow:
+                0 4px 12px rgba(198, 123, 92, 0.3),
+                0 2px 6px rgba(184, 149, 106, 0.2),
+                inset 0 1px 2px rgba(255, 255, 255, 0.5);
+            z-index: 10;
+        }
+
+        .timeline-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                180deg,
+                rgba(255, 255, 255, 0.4) 0%,
+                transparent 50%
+            );
+            border-radius: 3px 3px 0 0;
+            pointer-events: none;
+        }
+
+        .timeline-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 6px;
+            padding: 0 2px;
+        }
+
+        .timeline-label {
+            flex: 1;
+            text-align: center;
+            font-size: 0.65em;
+            font-weight: 600;
+            color: var(--text-secondary);
+            opacity: 0.8;
+            max-width: 12px;
+            margin: 0 1px;
+        }
+
+        .timeline-label.major {
+            opacity: 1;
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        .timeline-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px solid var(--cream-darker);
+        }
+
+        .timeline-stat {
+            text-align: center;
+            font-size: 0.7em;
+        }
+
+        .timeline-stat-label {
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 2px;
+        }
+
+        .timeline-stat-value {
+            font-weight: 700;
+            color: var(--accent-primary);
+            font-size: 1.1em;
+        }
+
+        .timeline-tooltip {
+            position: absolute;
+            background: rgba(44, 36, 22, 0.95);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.75em;
+            font-weight: 600;
+            pointer-events: none;
+            z-index: 20;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .timeline-tooltip.show {
+            opacity: 1;
+        }
+
+        /* Top Usernames */
+        .top-usernames {
+            max-height: 240px;
+            overflow-y: auto;
+        }
+
+        .username-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 7px 0;
+            border-bottom: 1px solid var(--cream-darker);
+        }
+
+        .username-item:last-child {
+            border-bottom: none;
+        }
+
+        .username-name {
+            font-family: 'Courier New', monospace;
+            color: #1a1410;
+            font-weight: 700;
+            font-size: 0.85em;
+        }
+
+        .username-count {
+            color: var(--accent-danger);
+            font-weight: 700;
+            font-size: 0.85em;
+            min-width: 45px;
+            text-align: right;
+        }
+
+        /* Top Attackers Table */
+        .top-attackers {
+            max-height: 320px;
+            overflow-y: auto;
+        }
+
+        .attacker-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, rgba(198, 123, 92, 0.08), rgba(184, 149, 106, 0.08));
+            border-left: 3px solid var(--accent-danger);
+            border-radius: 8px;
+            font-size: 0.8em;
+            transition: all 0.2s ease;
+        }
+
+        .attacker-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .attacker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .attacker-ip {
+            font-family: 'Courier New', monospace;
+            color: var(--accent-danger);
+            font-weight: 700;
+            font-size: 0.95em;
+        }
+
+        .attacker-count {
+            background: var(--accent-danger);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .attacker-details {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .attacker-detail {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .persistence-badge {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            padding: 2px 5px;
+            border-radius: 6px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+
+        /* Threat Level Colors */
+        .threat-low {
+            color: #4CAF50 !important;
+        }
+
+        .threat-medium {
+            color: #FF9800 !important;
+        }
+
+        .threat-high {
+            color: #FF5722 !important;
+        }
+
+        .threat-critical {
+            color: #D32F2F !important;
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Scrollbar styles for new panels */
+        .top-usernames::-webkit-scrollbar,
+        .top-attackers::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .top-usernames::-webkit-scrollbar-track,
+        .top-attackers::-webkit-scrollbar-track {
+            background: var(--cream-dark);
+            border-radius: 3px;
+        }
+
+        .top-usernames::-webkit-scrollbar-thumb,
+        .top-attackers::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 3px;
         }
 
 
@@ -497,59 +865,63 @@
         /* Mobile Optimization */
         @media (max-width: 1024px) {
             .container {
-                padding: 16px;
-                gap: 16px;
+                padding: 10px;
+                gap: 10px;
             }
 
-            .main-content {
+            .top-row {
                 grid-template-columns: 1fr;
-                grid-template-rows: 400px 1fr;
+                gap: 10px;
             }
 
-            .sidebar {
-                max-height: none;
+            .bottom-panels {
+                grid-template-columns: 1fr;
             }
 
             .header {
                 display: flex;
                 flex-direction: column;
-                padding: 20px 24px;
+                padding: 12px 18px;
                 align-items: center;
-                gap: 16px;
+                gap: 12px;
             }
 
             .title {
-                font-size: 1.3em;
+                font-size: 1.2em;
                 text-align: center;
             }
 
             .subtitle {
-                font-size: 0.65em;
+                font-size: 0.6em;
             }
 
             .status {
-                gap: 12px;
+                gap: 8px;
                 justify-content: center;
             }
 
             .status-item {
-                padding: 10px 16px;
-                min-width: 90px;
+                padding: 8px 12px;
+                min-width: 80px;
             }
 
             .status-value {
-                font-size: 1.6em;
+                font-size: 1.5em;
+            }
+
+            .map-container {
+                height: 360px;
             }
 
             .map-legend {
-                bottom: 10px;
-                right: 10px;
-                padding: 12px 16px;
-                font-size: 0.9em;
+                bottom: 8px;
+                right: 8px;
+                padding: 8px 12px;
+                font-size: 0.85em;
             }
 
             .legend-item {
-                font-size: 0.75em;
+                font-size: 0.7em;
             }
         }
 
@@ -561,56 +933,102 @@
             .container {
                 height: auto;
                 min-height: 100vh;
-                padding: 12px;
-                gap: 12px;
+                padding: 8px;
+                gap: 8px;
             }
 
             .header {
                 display: flex;
                 flex-direction: column;
-                gap: 16px;
-                padding: 16px 20px;
+                gap: 10px;
+                padding: 12px 16px;
                 align-items: center;
             }
 
             .title {
-                font-size: 1.1em;
+                font-size: 1.05em;
                 text-align: center;
                 justify-self: center;
             }
 
             .subtitle {
-                font-size: 0.6em;
+                font-size: 0.55em;
             }
 
             .status {
-                flex-direction: row;
-                justify-content: center;
-                gap: 8px;
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+                width: 100%;
                 justify-self: center;
             }
 
             .status-item {
-                padding: 12px 8px;
-                min-width: 80px;
-                flex: 1;
+                padding: 8px 4px;
+                min-width: auto;
             }
 
             .status-label {
-                font-size: 0.65em;
+                font-size: 0.55em;
             }
 
             .status-value {
-                font-size: 1.4em;
+                font-size: 1.1em;
             }
 
-            .main-content {
-                grid-template-rows: 350px auto;
-                gap: 12px;
+            /* Make timeline chart more compact on mobile */
+            .hourly-heatmap {
+                padding: 12px;
+                min-height: 180px;
+            }
+
+            .timeline-container {
+                padding: 12px;
+            }
+
+            .timeline-chart {
+                height: 80px;
+            }
+
+            .timeline-bar {
+                max-width: 8px;
+            }
+
+            .timeline-label {
+                font-size: 0.6em;
+                max-width: 8px;
+            }
+
+            .timeline-stats {
+                margin-top: 8px;
+                padding-top: 6px;
+            }
+
+            .timeline-stat {
+                font-size: 0.65em;
+            }
+
+            /* Adjust new panels for mobile */
+            .attacker-item {
+                font-size: 0.75em;
+                padding: 8px;
+            }
+
+            .username-item,
+            .service-item {
+                font-size: 0.8em;
+            }
+
+            .top-row {
+                grid-template-columns: 1fr;
+            }
+
+            .bottom-panels {
+                grid-template-columns: 1fr;
             }
 
             .map-container {
-                height: 350px;
+                height: 320px;
                 touch-action: pan-y; /* Allow vertical scrolling through the map */
                 pointer-events: none; /* Completely disable touch interactions on mobile */
             }
@@ -631,30 +1049,30 @@
             }
 
             .panel {
-                padding: 16px;
+                padding: 12px;
             }
 
             .panel-title {
-                font-size: 1em;
+                font-size: 0.95em;
             }
 
             .sidebar {
-                gap: 12px;
+                gap: 8px;
             }
 
             /* Larger touch targets for mobile */
             .log-entry {
-                padding: 12px;
-                margin-bottom: 10px;
+                padding: 10px;
+                margin-bottom: 8px;
             }
 
             .country-item {
-                padding: 12px 0;
+                padding: 8px 0;
             }
 
             .country-bar {
-                height: 24px;
-                margin: 0 12px;
+                height: 20px;
+                margin: 0 10px;
             }
 
             /* Adjust scrollbar for mobile */
@@ -665,90 +1083,95 @@
 
         @media (max-width: 480px) {
             .container {
-                padding: 8px;
-                gap: 8px;
+                padding: 6px;
+                gap: 6px;
             }
 
             .header {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                padding: 12px 16px;
-                gap: 12px;
+                padding: 10px 14px;
+                gap: 8px;
             }
 
             .title {
-                font-size: 0.95em;
+                font-size: 0.9em;
                 text-align: center;
             }
 
             .subtitle {
-                font-size: 0.55em;
+                font-size: 0.5em;
             }
 
             .status {
-                gap: 6px;
+                gap: 4px;
                 justify-content: center;
             }
 
             .status-item {
-                padding: 10px 6px;
-                min-width: 70px;
+                padding: 6px 4px;
+                min-width: 65px;
             }
 
             .status-label {
-                font-size: 0.6em;
+                font-size: 0.55em;
             }
 
             .status-value {
-                font-size: 1.2em;
+                font-size: 1.1em;
             }
 
-            .main-content {
-                grid-template-rows: 300px auto;
-                gap: 8px;
+            .top-row {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+
+            .bottom-panels {
+                grid-template-columns: 1fr;
+                gap: 6px;
             }
 
             .map-container {
-                height: 300px;
+                height: 280px;
             }
 
             .panel {
-                padding: 12px;
+                padding: 10px;
             }
 
             .panel-title {
-                font-size: 0.95em;
-                margin-bottom: 12px;
+                font-size: 0.9em;
+                margin-bottom: 10px;
             }
 
             .log-entry {
-                padding: 10px;
-                font-size: 0.8em;
+                padding: 8px;
+                font-size: 0.75em;
             }
 
             .country-item {
-                padding: 10px 0;
+                padding: 6px 0;
             }
 
             .country-name {
-                min-width: 70px;
-                font-size: 0.85em;
+                min-width: 65px;
+                font-size: 0.8em;
             }
 
             .country-bar {
-                margin: 0 10px;
-                height: 20px;
+                margin: 0 8px;
+                height: 18px;
             }
 
             .country-count {
-                font-size: 0.85em;
-                min-width: 50px;
+                font-size: 0.8em;
+                min-width: 45px;
             }
 
             .log-count {
-                padding: 1px 6px;
-                font-size: 0.75em;
+                padding: 1px 5px;
+                font-size: 0.7em;
             }
         }
 
@@ -761,41 +1184,36 @@
             .container {
                 height: auto;
                 min-height: 100vh;
+                padding: 8px;
+                gap: 8px;
             }
 
-            .main-content {
-                grid-template-columns: 1fr 1fr;
-                grid-template-rows: auto;
-                overflow: visible; /* Allow content to flow naturally for page scrolling */
+            .top-row {
+                grid-template-columns: 1fr;
+            }
+
+            .bottom-panels {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
             }
 
             .map-container {
-                height: 80vh; /* Increased height for better visibility */
-                grid-column: 1 / -1; /* Make map span full width */
-                pointer-events: none; /* Completely disable touch interactions */
+                height: 65vh;
+                pointer-events: none;
             }
 
             .map-legend {
-                display: none; /* Hide legend on mobile landscape to save space */
+                display: none;
             }
 
             #map {
-                pointer-events: none; /* Disable all map interactions */
+                pointer-events: none;
             }
 
             /* Re-enable pointer events on markers so they can still be tapped */
             .leaflet-marker-icon,
             .leaflet-popup {
                 pointer-events: auto !important;
-            }
-
-            .sidebar {
-                max-height: none; /* Remove max-height to allow natural flow */
-                overflow-y: visible; /* Let the body handle scrolling */
-                display: grid;
-                grid-template-columns: 1fr 1fr; /* Two columns: Countries left, Recent right */
-                gap: 20px;
-                grid-column: 1 / -1; /* Span full width below map */
             }
         }
 
@@ -844,44 +1262,92 @@
                     <div class="status-value" id="bannedIps">0</div>
                 </div>
                 <div class="status-item">
-                    <div class="status-label">Countries</div>
-                    <div class="status-value" id="countries">0</div>
+                    <div class="status-label">Velocity</div>
+                    <div class="status-value" id="attackVelocity">0</div>
+                    <div class="status-sublabel" style="font-size: 0.65em; opacity: 0.7; margin-top: 2px;">per hour</div>
+                </div>
+                <div class="status-item" id="threatLevelCard">
+                    <div class="status-label">Threat Level</div>
+                    <div class="status-value" id="threatLevel">Low</div>
                 </div>
             </div>
         </div>
 
         <div class="main-content">
-            <div class="map-container">
-                <div id="map"></div>
-                <div class="map-legend">
-                    <div class="legend-title">Threat Severity</div>
-                    <div class="legend-item">
-                        <div class="legend-circle" style="width: 30px; height: 30px;"></div>
-                        <span>High (200+ attempts)</span>
+            <!-- Top Row: Map + Quick Stats -->
+            <div class="top-row">
+                <div class="map-container">
+                    <div id="map"></div>
+                    <div class="map-legend">
+                        <div class="legend-title">Threat Severity</div>
+                        <div class="legend-item">
+                            <div class="legend-circle" style="width: 30px; height: 30px;"></div>
+                            <span>High (200+ attempts)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-circle" style="width: 20px; height: 20px;"></div>
+                            <span>Medium (50-200 attempts)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-circle" style="width: 12px; height: 12px;"></div>
+                            <span>Low (&lt;50 attempts)</span>
+                        </div>
                     </div>
-                    <div class="legend-item">
-                        <div class="legend-circle" style="width: 20px; height: 20px;"></div>
-                        <span>Medium (50-200 attempts)</span>
+                </div>
+
+                <div class="sidebar">
+                    <div class="panel">
+                        <div class="panel-title">Countries</div>
+                        <div id="topCountries">
+                            <div class="loading">Loading threat data...</div>
+                        </div>
                     </div>
-                    <div class="legend-item">
-                        <div class="legend-circle" style="width: 12px; height: 12px;"></div>
-                        <span>Low (&lt;50 attempts)</span>
+
+                    <div class="panel">
+                        <div class="panel-title">Recent</div>
+                        <div class="attack-log" id="attackLog">
+                            <div class="loading">Analyzing security events...</div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="sidebar">
+            <!-- Bottom Panels: Multi-column grid -->
+            <div class="bottom-panels">
                 <div class="panel">
-                    <div class="panel-title">Countries</div>
-                    <div id="topCountries">
-                        <div class="loading">Loading threat data...</div>
+                    <div class="panel-title">Defense Status</div>
+                    <div id="defenseStatus">
+                        <div class="stat-item">
+                            <span class="stat-label">Ban Effectiveness</span>
+                            <span class="stat-value" id="banEffectiveness">0%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">SSH Attempts</span>
+                            <span class="stat-value" id="sshAttempts">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">WordPress Attempts</span>
+                            <span class="stat-value" id="wpAttempts">0</span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="panel">
-                    <div class="panel-title">Recent</div>
-                    <div class="attack-log" id="attackLog">
-                        <div class="loading">Analyzing security events...</div>
+                    <div class="panel-title">Attack Heatmap</div>
+                    <div id="hourlyHeatmap" class="hourly-heatmap"></div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">Top Targeted Usernames</div>
+                    <div id="topUsernames" class="top-usernames">
+                        <div class="loading">Loading username data...</div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">Most Aggressive Attackers</div>
+                    <div id="topAttackers" class="top-attackers">
+                        <div class="loading">Analyzing threat actors...</div>
                     </div>
                 </div>
             </div>
@@ -955,6 +1421,10 @@
                 updateMap(data.attacks);
                 updateTopCountries(data.countryCounts);
                 updateAttackLog(data.recentAttacks);
+                updateHourlyHeatmap(data.hourStats);
+                updateTopUsernames(data.topUsernames);
+                updateTopAttackers(data.topAttackers);
+                updateDefenseStatus(data);
             } catch (error) {
                 console.error('Error loading data:', error);
             }
@@ -965,7 +1435,27 @@
             document.getElementById('totalAttempts').textContent = data.totalAttempts.toLocaleString();
             document.getElementById('uniqueIps').textContent = data.uniqueIps.toLocaleString();
             document.getElementById('bannedIps').textContent = data.bannedIps.toLocaleString();
-            document.getElementById('countries').textContent = data.countryCount;
+            document.getElementById('attackVelocity').textContent = data.attackVelocity || '0';
+
+            // Update threat level with color coding
+            const threatLevel = data.threatLevel || 'Low';
+            const threatElement = document.getElementById('threatLevel');
+            const threatCard = document.getElementById('threatLevelCard');
+            threatElement.textContent = threatLevel;
+
+            // Remove all threat classes
+            threatElement.classList.remove('threat-low', 'threat-medium', 'threat-high', 'threat-critical');
+
+            // Add appropriate class
+            if (threatLevel === 'Critical') {
+                threatElement.classList.add('threat-critical');
+            } else if (threatLevel === 'High') {
+                threatElement.classList.add('threat-high');
+            } else if (threatLevel === 'Medium') {
+                threatElement.classList.add('threat-medium');
+            } else {
+                threatElement.classList.add('threat-low');
+            }
         }
 
         // Calculate node size based on attack count
@@ -1126,7 +1616,7 @@
                 return;
             }
 
-            container.innerHTML = recentAttacks.slice(0, 4).map(attack => {
+            container.innerHTML = recentAttacks.slice(0, 3).map(attack => {
                 const localTime = attack.timestamp ? formatLocalTime(attack.timestamp) : attack.time;
                 const serviceIcon = attack.service === 'wordpress' ? '🔐' : '🖥️';
                 const serviceName = attack.service === 'wordpress' ? 'WordPress' : 'SSH';
@@ -1143,6 +1633,202 @@
                     </div>
                 `;
             }).join('');
+        }
+
+
+        // Update hourly timeline bar chart
+        function updateHourlyHeatmap(hourStats) {
+            const container = document.getElementById('hourlyHeatmap');
+
+            if (!hourStats || hourStats.length === 0) {
+                container.innerHTML = '<div class="loading">No hourly data</div>';
+                return;
+            }
+
+            const maxCount = Math.max(...hourStats.map(h => h.count));
+            const totalAttacks = hourStats.reduce((sum, h) => sum + h.count, 0);
+            const avgAttacks = Math.round(totalAttacks / (7 * 24)); // 7-day average
+
+            // Find peak hour
+            const peakHour = hourStats.reduce((max, current) =>
+                current.count > max.count ? current : max
+            );
+
+            // Create timeline container
+            let timelineHTML = `
+                <div class="timeline-container">
+                    <div class="timeline-title">Attack Distribution by Hour</div>
+                    <div class="timeline-chart">
+            `;
+
+            // Create bars for each hour
+            hourStats.forEach(hourData => {
+                const height = maxCount > 0 ? (hourData.count / maxCount) * 100 : 0;
+                const intensity = maxCount > 0 ? hourData.count / maxCount : 0;
+
+                // Generate color based on intensity
+                let topColor, bottomColor;
+                if (intensity === 0) {
+                    topColor = '#FAF7F0';
+                    bottomColor = '#E8DCC4';
+                } else if (intensity < 0.25) {
+                    topColor = '#F5D5B8';
+                    bottomColor = '#E8DCC4';
+                } else if (intensity < 0.5) {
+                    topColor = '#E8B89A';
+                    bottomColor = '#D89A7B';
+                } else if (intensity < 0.75) {
+                    topColor = '#D89A7B';
+                    bottomColor = '#C67B5C';
+                } else {
+                    topColor = '#C67B5C';
+                    bottomColor = '#B8664A';
+                }
+
+                timelineHTML += `
+                    <div class="timeline-bar"
+                         style="
+                             height: ${height}%;
+                             --bar-color-top: ${topColor};
+                             --bar-color-bottom: ${bottomColor};
+                         "
+                         data-hour="${hourData.hour}"
+                         data-count="${hourData.count}"
+                         onmouseover="showTimelineTooltip(event, ${hourData.hour}, ${hourData.count})"
+                         onmouseout="hideTimelineTooltip()">
+                    </div>
+                `;
+            });
+
+            timelineHTML += '</div>';
+
+            // Add hour labels
+            timelineHTML += '<div class="timeline-labels">';
+            hourStats.forEach(hourData => {
+                const isMajor = hourData.hour % 6 === 0; // Highlight every 6 hours
+                const displayHour = hourData.hour === 0 ? '12a' :
+                                   hourData.hour < 12 ? hourData.hour + 'a' :
+                                   hourData.hour === 12 ? '12p' :
+                                   (hourData.hour - 12) + 'p';
+
+                timelineHTML += `<div class="timeline-label ${isMajor ? 'major' : ''}">${displayHour}</div>`;
+            });
+            timelineHTML += '</div>';
+
+            // Add stats
+            timelineHTML += `
+                <div class="timeline-stats">
+                    <div class="timeline-stat">
+                        <div class="timeline-stat-label">Peak Hour</div>
+                        <div class="timeline-stat-value">${peakHour.hour}:00</div>
+                    </div>
+                    <div class="timeline-stat">
+                        <div class="timeline-stat-label">Peak Attacks</div>
+                        <div class="timeline-stat-value">${peakHour.count}</div>
+                    </div>
+                </div>
+            `;
+
+            timelineHTML += '</div>';
+
+            // Add tooltip
+            timelineHTML += '<div class="timeline-tooltip" id="timelineTooltip"></div>';
+
+            container.innerHTML = timelineHTML;
+        }
+
+        // Tooltip functions for timeline chart
+        function showTimelineTooltip(event, hour, count) {
+            const tooltip = document.getElementById('timelineTooltip');
+            if (!tooltip) return;
+
+            const displayHour = hour === 0 ? '12:00 AM' :
+                               hour < 12 ? `${hour}:00 AM` :
+                               hour === 12 ? '12:00 PM' :
+                               `${hour - 12}:00 PM`;
+
+            tooltip.innerHTML = `<strong>${displayHour}</strong><br>${count} attacks`;
+
+            const rect = event.target.getBoundingClientRect();
+            const container = document.getElementById('hourlyHeatmap').getBoundingClientRect();
+
+            tooltip.style.left = (rect.left - container.left + rect.width/2 - tooltip.offsetWidth/2) + 'px';
+            tooltip.style.top = (rect.top - container.top - tooltip.offsetHeight - 8) + 'px';
+            tooltip.classList.add('show');
+        }
+
+        function hideTimelineTooltip() {
+            const tooltip = document.getElementById('timelineTooltip');
+            if (tooltip) {
+                tooltip.classList.remove('show');
+            }
+        }
+
+        // Get heatmap color based on intensity
+        function getHeatmapColor(intensity) {
+            if (intensity === 0) return '#FAF7F0';
+            if (intensity < 0.25) return '#F5D5B8';
+            if (intensity < 0.5) return '#E8B89A';
+            if (intensity < 0.75) return '#D89A7B';
+            return '#C67B5C';
+        }
+
+        // Update top usernames
+        function updateTopUsernames(topUsernames) {
+            const container = document.getElementById('topUsernames');
+
+            if (!topUsernames || Object.keys(topUsernames).length === 0) {
+                container.innerHTML = '<div class="loading">No username data</div>';
+                return;
+            }
+
+            container.innerHTML = Object.entries(topUsernames).map(([username, count]) => `
+                <div class="username-item">
+                    <div class="username-name">${username}</div>
+                    <div class="username-count">${count}</div>
+                </div>
+            `).join('');
+        }
+
+        // Update top attackers
+        function updateTopAttackers(topAttackers) {
+            const container = document.getElementById('topAttackers');
+
+            if (!topAttackers || topAttackers.length === 0) {
+                container.innerHTML = '<div class="loading">No attacker data</div>';
+                return;
+            }
+
+            container.innerHTML = topAttackers.map((attacker, index) => {
+                const serviceIcon = attacker.service === 'wordpress' ? '🔐' : '🖥️';
+                const serviceName = attacker.service === 'wordpress' ? 'WP' : 'SSH';
+                const statusBadge = attacker.blacklisted ? '⛔ BANNED' :
+                                   attacker.locked ? '🔒 LOCKED' : '';
+
+                return `
+                    <div class="attacker-item">
+                        <div class="attacker-header">
+                            <div class="attacker-ip">#${index + 1} ${attacker.ip}</div>
+                            <div class="attacker-count">${attacker.count}</div>
+                        </div>
+                        <div class="attacker-details">
+                            <div class="attacker-detail">📍 ${attacker.city}, ${attacker.countryCode}</div>
+                            <div class="attacker-detail">${serviceIcon} ${serviceName}</div>
+                            <div class="attacker-detail">
+                                <span class="persistence-badge">⏱ ${attacker.persistenceDuration || 'Unknown'}</span>
+                            </div>
+                            ${statusBadge ? `<div class="attacker-detail" style="color: var(--accent-danger); font-weight: 700;">${statusBadge}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update defense status
+        function updateDefenseStatus(data) {
+            document.getElementById('banEffectiveness').textContent = (data.banEffectiveness || 0) + '%';
+            document.getElementById('sshAttempts').textContent = (data.sshAttempts || 0).toLocaleString();
+            document.getElementById('wpAttempts').textContent = (data.wpAttempts || 0).toLocaleString();
         }
 
         // Initialize on load
